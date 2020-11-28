@@ -1,4 +1,214 @@
 <?xml version="1.0"?>
 <robot name="ik_manipulator" xmlns:xacro="http://ros.org/wiki/xacro">
 
+	<xacro:include filename="$(find inverse_kinematic_manipulator)/urdf/properties/size_and_weight_properties.xacro"/>
+
+  <xacro:macro name="cylinder_inertia" params="m r h">
+    <inertia  ixx="${m*(3*r*r+h*h)/12}" ixy = "0" ixz = "0"
+              iyy="${m*(3*r*r+h*h)/12}" iyz = "0"
+              izz="${m*r*r/2}"/>
+  </xacro:macro>
+
+	<!-- base link -->
+	<link name="base_link">
+		<visual>
+			<origin xyz="0.0 0.0 ${base_link_height/2}" rpy="0.0 0.0 0.0"/>
+			<geometry>
+				<cylinder length="${base_link_height}" radius="${base_link_radius}"/>
+			</geometry>
+			<material name="red">
+				<color rgba="0.8 0.0 0.0 1.0"/>
+			</material>
+		</visual>
+		<collision>
+			<origin xyz="0.0 0.0 0.025" rpy="0.0 0.0 0.0"/>
+			<geometry>
+				<cylinder length="${base_link_height}" radius="${base_link_radius}"/>
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="0.0 0.0 ${shoulder_z_height/2}" rpy="0.0 0.0 0.0"/>
+			<mass value="${base_link_mass}" />
+			<xacro:cylinder_inertia  m="${base_link_mass}" r="${base_link_radius}" h="${base_link_height}"/>
+		</inertial>
+	</link>
+
+	<gazebo reference="base_link">
+		<selfCollide>false</selfCollide>
+		<material value="Gazebo/Red"/>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+
+	<!-- shoulder z link -->
+	<joint name="shoulder_z_joint" type="revolute">
+		<origin xyz="0.0 0.0 ${base_link_height}" rpy="0.0 0.0 0.0"/>
+		<parent link="base_link"/>
+		<child link="shoulder_z_link"/>
+		<axis xyz="0.0 0.0 1.0"/>
+		<limit lower="-1e+16" upper="1e+16" effort="20.0" velocity="5.0"/>
+    <dynamics damping="0.4" friction="0.2"/>
+	</joint>
+
+	<link name="shoulder_z_link">
+		<visual>
+			<origin xyz="0.0 0.0 ${shoulder_z_height/2}" rpy="0.0 0.0 0.0"/>
+			<geometry>
+				<box size="${shoulder_z_length} ${shoulder_z_width} ${shoulder_z_height}"/>
+			</geometry>
+			<material name="blue">
+				<color rgba="0.0 0.0 0.8 1.0"/>
+			</material>			
+		</visual>
+		<collision>
+			<origin xyz="0.0 0.0 ${shoulder_z_height/2}" rpy="0.0 0.0 0.0"/>
+			<geometry>
+				<box size="${shoulder_z_length} ${shoulder_z_width} ${shoulder_z_height}"/>
+			</geometry>			
+		</collision>
+		<inertial>
+			<origin xyz="0.0 0.0 ${shoulder_z_height/2}" rpy="0.0 0.0 0.0"/>
+			<mass value="${shoulder_z_mass}" />
+			<xacro:cylinder_inertia m="${shoulder_z_mass}" r="${shoulder_z_length/2}" h="${shoulder_z_height}"/>
+		</inertial>
+	</link>
+
+	<gazebo reference="shoulder_z_link">
+		<selfCollide>false</selfCollide>
+		<material value="Gazebo/Blue"/>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+
+	<!-- arm a link -->
+	<joint name="arm_a_joint" type="revolute">
+		<origin xyz="0.0 0.0 ${shoulder_z_height}" rpy="0.0 0.0 0.0"/>
+		<parent link="shoulder_z_link"/>
+		<child link="arm_a_link"/>
+		<axis xyz="0.0 1.0 0.0"/>
+		<limit lower="-1e+16" upper="1e+16" effort="20.0" velocity="5.0"/>
+    <dynamics damping="2" friction="0.2"/>
+	</joint>
+
+	<link name="arm_a_link">
+		<inertial>
+			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+			<mass value="${arm_a_mass}"/>
+			<xacro:cylinder_inertia m="${arm_a_mass}" r="${arm_a_length/2}" h="${arm_a_height}"/>
+		</inertial>
+		<visual>
+			<origin xyz="0.0 0.0 ${arm_a_height/2}" rpy="0.0 0.0 0.0"/>
+			<geometry>
+				<box size="${arm_a_length} ${arm_a_width} ${arm_a_height}"/>
+			</geometry>
+			<material name="green">
+				<color rgba="0.0 0.8 0.0 1.0"/>
+			</material>
+		</visual>
+		<collision>
+			<origin xyz="0.0 0.0 ${arm_a_height/2}" rpy="0.0 0.0 0.0"/>
+			<geometry>
+				<box size="${arm_a_length} ${arm_a_width} ${arm_a_height}"/>
+			</geometry>
+		</collision>
+	</link>
+
+	<gazebo reference="arm_a_link">
+		<selfCollide>false</selfCollide>
+		<material value="Gazebo/Green"/>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+
+	<!-- arm b link -->
+	<joint name="arm_b_initial_joint" type="revolute">
+		<origin xyz="0.0 0.0 ${arm_a_height}" rpy="0.0 0.0 0.0"/>
+		<parent link="arm_a_link"/>
+		<child link="arm_b_initial_link"/>
+		<axis xyz="0.0 1.0 0.0"/>
+		<limit lower="-1e+16" upper="1e+16" effort="20.0" velocity="5.0"/>
+    <dynamics damping="2" friction="0.2"/>
+	</joint>
+
+	<link name="arm_b_initial_link">
+		<inertial>
+			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+			<mass value="0.1"/>
+			<inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
+	</link>
+
+	<joint name="arm_b_joint" type="revolute">
+		<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+		<parent link="arm_b_initial_link"/>
+		<child link="arm_b_link"/>
+		<axis xyz="0.0 0.0 1.0"/>
+		<limit lower="-1e+16" upper="1e+16" effort="20.0" velocity="5.0"/>
+    <dynamics damping="2" friction="0.2"/>
+	</joint>
+
+	<link name="arm_b_link">
+		<inertial>
+			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+			<mass value="${arm_b_mass}"/>
+			<xacro:cylinder_inertia m="${arm_b_mass}" r="${arm_b_length/2}" h="${arm_b_height}"/>
+		</inertial>
+		<visual>
+			<origin xyz="0.0 0.0 ${arm_b_height/2}" rpy="0.0 0.0 0.0"/>
+			<geometry>
+				<box size="${arm_b_length} ${arm_b_width} ${arm_b_height}"/>
+			</geometry>
+			<material name="yellow">
+				<color rgba="0.8 0.8 0.0 1.0"/>
+			</material>
+		</visual>
+		<collision>
+			<origin xyz="0.0 0.0 ${arm_b_height/2}" rpy="0.0 0.0 0.0"/>
+			<geometry>
+				<box size="${arm_b_length} ${arm_b_width} ${arm_b_height}"/>
+			</geometry>
+		</collision>
+	</link>
+
+	<gazebo reference="arm_b_link">
+		<selfCollide>false</selfCollide>
+		<material value="Gazebo/Yellow"/>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+
+	<!-- wrist a link -->
+	<joint name="wrist_a_joint" type="revolute">
+		<origin xyz="0.0 0.0 ${arm_b_height}" rpy="0.0 0.0 0.0"/>
+		<parent link="arm_b_link"/>
+		<child link="wrist_a_link"/>
+		<axis xyz="0.0 1.0 0.0"/>
+		<limit lower="-1e+16" upper="1e+16" effort="20.0" velocity="5.0"/>
+    <dynamics damping="2" friction="0.2"/>
+	</joint>
+
+	<link name="wrist_a_link">
+		<inertial>
+			<origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+			<mass value="${wrist_a_mass}"/>
+			<xacro:cylinder_inertia m="${wrist_a_mass}" r="${wrist_a_radius}" h="${wrist_a_height}"/>
+		</inertial>
+		<visual>
+			<origin xyz="0.0 0.0 ${wrist_a_height/2}" rpy="0.0 0.0 0.0"/>
+			<geometry>
+				<cylinder radius="${wrist_a_radius}" length="${wrist_a_height}"/>
+			</geometry>
+			<material name="red">
+			</material>
+		</visual>
+		<collision>
+			<origin xyz="0.0 0.0 ${wrist_a_height/2}" rpy="0.0 0.0 0.0"/>
+			<geometry>
+				<cylinder radius="${wrist_a_radius}" length="${wrist_a_height}"/>
+			</geometry>
+		</collision>
+	</link>
+
+	<gazebo reference="wrist_a_link">
+		<selfCollide>false</selfCollide>
+		<material value="Gazebo/Red"/>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+
 </robot>

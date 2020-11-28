@@ -4,5 +4,196 @@
 <!-- |    EDITING THIS FILE BY HAND IS NOT RECOMMENDED                                 | -->
 <!-- =================================================================================== -->
 <robot name="ik_manipulator">
-
+  <!-- <xacro:property name="" value=""/>
+	<xacro:property name="" value=""/>
+	<xacro:property name="" value=""/> -->
+  <!-- <xacro:property name="" value=""/>
+	<xacro:property name="" value=""/>
+	<xacro:property name="" value=""/> -->
+  <!-- base link -->
+  <link name="base_link">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.025"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.075"/>
+      </geometry>
+      <material name="red">
+        <color rgba="0.8 0.0 0.0 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.025"/>
+      <geometry>
+        <cylinder length="0.05" radius="0.075"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.04"/>
+      <mass value="5"/>
+      <inertia ixx="0.008072916666666666" ixy="0" ixz="0" iyy="0.008072916666666666" iyz="0" izz="0.014062499999999999"/>
+    </inertial>
+  </link>
+  <gazebo reference="base_link">
+    <selfCollide>false</selfCollide>
+    <material value="Gazebo/Red"/>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+  <!-- shoulder z link -->
+  <joint name="shoulder_z_joint" type="revolute">
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.05"/>
+    <parent link="base_link"/>
+    <child link="shoulder_z_link"/>
+    <axis xyz="0.0 0.0 1.0"/>
+    <limit effort="20.0" lower="-1e+16" upper="1e+16" velocity="5.0"/>
+    <dynamics damping="0.4" friction="0.2"/>
+  </joint>
+  <link name="shoulder_z_link">
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.04"/>
+      <geometry>
+        <box size="0.08 0.08 0.08"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0.0 0.0 0.8 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.04"/>
+      <geometry>
+        <box size="0.08 0.08 0.08"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.04"/>
+      <mass value="1"/>
+      <inertia ixx="0.0009333333333333333" ixy="0" ixz="0" iyy="0.0009333333333333333" iyz="0" izz="0.0008"/>
+    </inertial>
+  </link>
+  <gazebo reference="shoulder_z_link">
+    <selfCollide>false</selfCollide>
+    <material value="Gazebo/Blue"/>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+  <!-- arm a link -->
+  <joint name="arm_a_joint" type="revolute">
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.08"/>
+    <parent link="shoulder_z_link"/>
+    <child link="arm_a_link"/>
+    <axis xyz="0.0 1.0 0.0"/>
+    <limit effort="20.0" lower="-1e+16" upper="1e+16" velocity="5.0"/>
+    <dynamics damping="2" friction="0.2"/>
+  </joint>
+  <link name="arm_a_link">
+    <inertial>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+      <mass value="0.5"/>
+      <inertia ixx="0.003828125" ixy="0" ixz="0" iyy="0.003828125" iyz="0" izz="0.00015625000000000003"/>
+    </inertial>
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.15"/>
+      <geometry>
+        <box size="0.05 0.05 0.3"/>
+      </geometry>
+      <material name="green">
+        <color rgba="0.0 0.8 0.0 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.15"/>
+      <geometry>
+        <box size="0.05 0.05 0.3"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="arm_a_link">
+    <selfCollide>false</selfCollide>
+    <material value="Gazebo/Green"/>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+  <!-- arm b link -->
+  <joint name="arm_b_initial_joint" type="revolute">
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.3"/>
+    <parent link="arm_a_link"/>
+    <child link="arm_b_initial_link"/>
+    <axis xyz="0.0 1.0 0.0"/>
+    <limit effort="20.0" lower="-1e+16" upper="1e+16" velocity="5.0"/>
+    <dynamics damping="2" friction="0.2"/>
+  </joint>
+  <link name="arm_b_initial_link">
+    <inertial>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+    </inertial>
+  </link>
+  <joint name="arm_b_joint" type="revolute">
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    <parent link="arm_b_initial_link"/>
+    <child link="arm_b_link"/>
+    <axis xyz="0.0 0.0 1.0"/>
+    <limit effort="20.0" lower="-1e+16" upper="1e+16" velocity="5.0"/>
+    <dynamics damping="2" friction="0.2"/>
+  </joint>
+  <link name="arm_b_link">
+    <inertial>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+      <mass value="0.5"/>
+      <inertia ixx="0.003828125" ixy="0" ixz="0" iyy="0.003828125" iyz="0" izz="0.00015625000000000003"/>
+    </inertial>
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.15"/>
+      <geometry>
+        <box size="0.05 0.05 0.3"/>
+      </geometry>
+      <material name="yellow">
+        <color rgba="0.8 0.8 0.0 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.15"/>
+      <geometry>
+        <box size="0.05 0.05 0.3"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="arm_b_link">
+    <selfCollide>false</selfCollide>
+    <material value="Gazebo/Yellow"/>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
+  <!-- wrist a link -->
+  <joint name="wrist_a_joint" type="revolute">
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.3"/>
+    <parent link="arm_b_link"/>
+    <child link="wrist_a_link"/>
+    <axis xyz="0.0 1.0 0.0"/>
+    <limit effort="20.0" lower="-1e+16" upper="1e+16" velocity="5.0"/>
+    <dynamics damping="2" friction="0.2"/>
+  </joint>
+  <link name="wrist_a_link">
+    <inertial>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+      <mass value="0.2"/>
+      <inertia ixx="3.7916666666666676e-05" ixy="0" ixz="0" iyy="3.7916666666666676e-05" iyz="0" izz="6.250000000000001e-05"/>
+    </inertial>
+    <visual>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.01"/>
+      <geometry>
+        <box size="0.05 0.05 0.02"/>
+      </geometry>
+      <material name="red">
+			</material>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.01"/>
+      <geometry>
+        <box size="0.05 0.05 0.02"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="wrist_a_link">
+    <selfCollide>false</selfCollide>
+    <material value="Gazebo/Red"/>
+    <turnGravityOff>false</turnGravityOff>
+  </gazebo>
 </robot>
